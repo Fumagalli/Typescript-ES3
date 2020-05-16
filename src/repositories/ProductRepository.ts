@@ -1,64 +1,72 @@
 import Product from '../models/Product';
 
 export default class ProductRepository {
-  private products: Array<Product>;
+  private aProducts: Array<Product>;
 
   constructor() {
-    this.products = [];
+    this.aProducts = [];
+  }
+
+  public set products(value: Array<Product>) {
+    this.aProducts = value;
+  }
+
+  public get products(): Array<Product> {
+    return this.aProducts;
+  }
+
+  public updateProducts(products: Array<Product>): Array<Product> {
+    this.products = products;
+    return this.products;
   }
 
   public findAll(): Array<Product> {
     return this.products;
   }
 
-  public findByCode(code: number): Product | undefined {
-    return this.products.find(v => v.code === code);
+  public findByCode(code: number): Array<Product> {
+    return this.products.filter(v => v.code === code);
   }
 
-  public updateLove(code: number): Product {
-    const filtered = this.products.filter(obj => obj.code === code);
-
-    filtered.map(obj => {
-      const p = obj;
-      p.lovers += 1;
-      return p;
-    });
-
-    return filtered[0];
+  public findById(id: string): Product | undefined {
+    return this.products.find(v => v.id === id);
   }
 
-  public delete(code: number): Array<Product> {
-    const index = this.products.findIndex(obj => obj.code === code);
+  public delete(id: string): Array<Product> {
+    const product = this.findById(id);
 
-    if (index === -1) {
-      throw Error(`Não foi encontrado um produto com o código ${code}`);
+    if (!product) {
+      throw Error(`Não foi encontrado um produto com o código ${id}`);
     }
 
+    const index = this.products.findIndex(obj => obj.id === id);
+
     this.products.splice(index, 1);
+
     return this.products;
   }
 
-  public update(
-    id: string,
-    code: number,
-    description: string,
-    buyPrice: number,
-    sellPrice: number,
-    tags: Array<Product>,
-  ): Product {
-    const p = this.products.find(obj => obj.id === id);
+  public update({
+    id,
+    buyPrice,
+    code,
+    description,
+    sellPrice,
+    tags,
+  }: Product): Product {
+    const product = this.findById(id);
 
-    if (!p) {
+    if (!product) {
       throw Error(`Não foi encontrado um produto com o id ${id}`);
     }
 
-    p.code = code;
-    p.description = description;
-    p.buyPrice = buyPrice;
-    p.sellPrice = sellPrice;
-    p.tags = tags;
+    product.code = code;
+    product.description = description;
+    product.buyPrice = buyPrice;
+    product.sellPrice = sellPrice;
+    product.tags = tags;
 
-    return p;
+    return product;
   }
 
   public save({

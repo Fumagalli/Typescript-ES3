@@ -8,15 +8,11 @@ export default class CreateProductService {
     this.repository = repository;
   }
 
-  public execute({
-    buyPrice,
-    code,
-    description,
-    lovers,
-    sellPrice,
-    tags,
-  }: Product): Product {
+  public execute(data: Product): Product {
+    const { buyPrice, code, description, lovers, sellPrice, tags } = data;
+
     const product = this.repository.findByCode(code);
+
     if (product) {
       throw Error('Produto já cadastrado');
     }
@@ -29,6 +25,7 @@ export default class CreateProductService {
       sellPrice,
       tags,
     });
+
     this.repository.save(p);
 
     return p;

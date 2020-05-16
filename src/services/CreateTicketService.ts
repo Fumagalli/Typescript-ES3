@@ -8,11 +8,13 @@ export default class CreateTicketService {
     this.repository = repository;
   }
 
-  public execute({ description, tags }: Ticket): Ticket {
+  public execute({ description, tags, productID }: Ticket): Ticket {
     const p = new Ticket({
+      productID,
       description,
       tags,
     });
+
     this.repository.save(p);
 
     return p;

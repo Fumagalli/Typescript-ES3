@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import ProductRepository from '../repositories/ProductRepository';
 import CreateProductService from '../services/CreateProductService';
+import UpdateProductService from '../services/UpdateProductService';
+import UpdateLoverProductService from '../services/UpdateLoverProductService';
 
 const productRouter = Router();
 const productRepository = new ProductRepository();
@@ -12,25 +14,8 @@ productRouter.get('/', (request, response) => {
 productRouter.post('/', (request, response) => {
   try {
     const service = new CreateProductService(productRepository);
-    const {
-      buyPrice,
-      code,
-      description,
-      lovers,
-      sellPrice,
-      tags,
-      id,
-    } = request.body;
-    const produto = service.execute({
-      buyPrice,
-      code,
-      description,
-      lovers,
-      sellPrice,
-      tags,
-      id,
-    });
-    return response.status(201).json(produto);
+    const produto = service.execute(request.body);
+    return response.status(201).json({ message: 'Sucesso', data: produto });
   } catch (error) {
     return response.status(400).json({ Erro: error.message });
   }
@@ -38,17 +23,9 @@ productRouter.post('/', (request, response) => {
 
 productRouter.put('/:id', (request, response) => {
   try {
-    const { id, code, description, buyPrice, sellPrice, tags } = request.body;
-    return response.json(
-      productRepository.update(
-        id,
-        code,
-        description,
-        buyPrice,
-        sellPrice,
-        tags,
-      ),
-    );
+    const service = new UpdateProductService(productRepository);
+    const produto = service.execute(request.params.id, request.body);
+    return response.status(201).json(produto);
   } catch (error) {
     return response.status(400).json({ Erro: error.message });
   }
@@ -56,6 +33,7 @@ productRouter.put('/:id', (request, response) => {
 
 productRouter.get('/:code', (request, response) => {
   try {
+    // rever para pegar o code do request e tratar para string virar number;
     const { code } = request.body;
     return response.json(productRepository.findByCode(code));
   } catch (error) {
@@ -65,17 +43,21 @@ productRouter.get('/:code', (request, response) => {
 
 productRouter.post('/:code/love', (request, response) => {
   try {
+    // rever para pegar o code do request e tratar para string virar number;
     const { code } = request.body;
-    return response.json(productRepository.updateLove(code));
+    const service = new UpdateLoverProductService(productRepository);
+    const products = service.execute(code);
+
+    return response.json(products);
   } catch (error) {
     return response.status(400).json({ Erro: error.message });
   }
 });
 
-productRouter.delete('/:code', (request, response) => {
+productRouter.delete('/:id', (request, response) => {
   try {
-    const { code } = request.body;
-    return response.json(productRepository.delete(code));
+    const { id } = request.params;
+    return response.json(productRepository.delete(id));
   } catch (error) {
     return response.status(400).json({ Erro: error.message });
   }
